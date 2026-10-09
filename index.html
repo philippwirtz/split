@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Geteilte Kasse</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0F1C16">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kasse">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brandrow">
+      <div class="brand">Geteilte <span>Kasse</span></div>
+      <span class="syncdot" id="syncDot" hidden></span>
+      <button class="iconbtn" id="theme" aria-label="Hell/Dunkel umschalten">◐</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ Gruppen ============ -->
+  <div id="tab-groups">
+
+    <section class="screen" id="home">
+      <div class="hero" id="homeHero"></div>
+      <div class="parthead">Gruppen</div>
+      <div id="groupList"></div>
+      <button class="act dashed" id="newGroup">+ Neue Gruppe</button>
+      <p class="shint center" id="homeHint"></p>
+    </section>
+
+    <section class="screen" id="group" hidden>
+      <div class="playtop">
+        <button class="back" id="gBack">‹ Gruppen</button>
+        <div class="pdeck" id="gMembersTop"></div>
+        <button class="iconbtn sm" id="gEdit" aria-label="Gruppe bearbeiten"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/></svg></button>
+      </div>
+      <h1 class="gtitle" id="gTitle"></h1>
+      <div class="hero" id="gHero"></div>
+      <div class="whoami" id="whoami" hidden></div>
+      <div class="kindseg" id="gSeg">
+        <button data-v="list" aria-pressed="true">Ausgaben</button>
+        <button data-v="bal" aria-pressed="false">Salden</button>
+        <button data-v="stat" aria-pressed="false">Statistik</button>
+      </div>
+      <div id="gView-list">
+        <div class="searchrow">
+          <input type="search" id="q" placeholder="Ausgaben durchsuchen" autocomplete="off" autocorrect="off" spellcheck="false">
+          <button id="clear" aria-label="Suche löschen">✕</button>
+        </div>
+        <div id="expList"></div>
+      </div>
+      <div id="gView-bal" hidden></div>
+      <div id="gView-stat" hidden></div>
+      <div class="fabrow">
+        <button class="act" id="addPay">Ausgleich</button>
+        <button class="act pri" id="addExp">+ Ausgabe</button>
+      </div>
+    </section>
+
+    <!-- Ausgabe bearbeiten -->
+    <section class="screen" id="edit" hidden>
+      <div class="playtop">
+        <button class="back" id="eBack">‹ Abbrechen</button>
+        <div class="pdeck" id="eGroup"></div>
+      </div>
+      <div class="form">
+        <label class="fl">Wofür</label>
+        <input type="text" id="eTitle" placeholder="z. B. Abendessen, Taxi, Hotel" autocomplete="off">
+        <div class="cats" id="eCats"></div>
+
+        <label class="fl">Betrag</label>
+        <div class="amtrow">
+          <input type="text" inputmode="decimal" id="eAmt" placeholder="0,00" autocomplete="off">
+          <select id="eCur"></select>
+        </div>
+        <div class="raterow" id="eRateRow" hidden>
+          <span id="eRateL"></span>
+          <input type="text" inputmode="decimal" id="eRate" autocomplete="off">
+          <button class="chipbtn" id="eRateGet">Tageskurs</button>
+        </div>
+        <p class="shint" id="eRateHint" hidden></p>
+
+        <div class="tworow">
+          <div><label class="fl">Datum</label><input type="date" id="eDate"></div>
+          <div><label class="fl">Bezahlt von</label><select id="ePayer"></select></div>
+        </div>
+
+        <label class="fl">Aufteilung</label>
+        <div class="seg wide" id="eMode">
+          <button data-m="eq">Gleich</button><button data-m="exact">Beträge</button><button data-m="pct">Prozent</button><button data-m="shares">Anteile</button>
+        </div>
+        <div id="eSplit"></div>
+        <p class="splitcheck" id="eCheck"></p>
+
+        <label class="fl">Notiz</label>
+        <input type="text" id="eNote" placeholder="optional" autocomplete="off">
+        <p class="meta" id="eMeta"></p>
+      </div>
+      <div class="stack">
+        <button class="act pri" id="eSave">Speichern</button>
+        <button class="act warn" id="eDel" hidden>Ausgabe löschen</button>
+      </div>
+    </section>
+
+    <!-- Ausgleich bearbeiten -->
+    <section class="screen" id="pay" hidden>
+      <div class="playtop">
+        <button class="back" id="pBack">‹ Abbrechen</button>
+        <div class="pdeck" id="pGroup"></div>
+      </div>
+      <div class="paybox">
+        <select id="pFrom"></select>
+        <div class="payarrow">zahlt an</div>
+        <select id="pTo"></select>
+      </div>
+      <div class="form">
+        <label class="fl">Betrag</label>
+        <div class="amtrow"><input type="text" inputmode="decimal" id="pAmt" placeholder="0,00" autocomplete="off"><span class="curtag" id="pCur"></span></div>
+        <label class="fl">Datum</label><input type="date" id="pDate">
+        <label class="fl">Notiz</label><input type="text" id="pNote" placeholder="z. B. per PayPal" autocomplete="off">
+        <p class="meta" id="pMeta"></p>
+      </div>
+      <div class="stack">
+        <button class="act pri" id="pSave">Ausgleich speichern</button>
+        <button class="act warn" id="pDel" hidden>Ausgleich löschen</button>
+      </div>
+    </section>
+
+    <!-- Gruppe bearbeiten -->
+    <section class="screen" id="gform" hidden>
+      <div class="playtop">
+        <button class="back" id="gfBack">‹ Abbrechen</button>
+        <div class="pdeck" id="gfHead"></div>
+      </div>
+      <div class="form">
+        <label class="fl">Name der Gruppe</label>
+        <input type="text" id="gfName" placeholder="z. B. Haushalt, Costa Rica" autocomplete="off">
+        <label class="fl">Währung der Gruppe</label>
+        <select id="gfCur"></select>
+        <p class="shint" id="gfCurHint">In dieser Währung werden Salden geführt. Einzelne Ausgaben können in anderer Währung erfasst werden.</p>
+        <label class="fl">Mitglieder</label>
+        <div id="gfMembers"></div>
+        <div class="addrow"><input type="text" id="gfNew" placeholder="Name hinzufügen" autocomplete="off"><button class="act" id="gfAdd">+</button></div>
+      </div>
+      <div class="stack">
+        <button class="act pri" id="gfSave">Speichern</button>
+        <button class="act" id="gfCsv" hidden>Als Tabelle exportieren (CSV)</button>
+        <button class="act warn" id="gfDel" hidden>Gruppe löschen</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ Aktivität ============ -->
+  <div id="tab-act" hidden>
+    <div class="parthead">Letzte Änderungen</div>
+    <div id="actList"></div>
+  </div>
+
+  <!-- ============ Einstellungen ============ -->
+  <div id="tab-set" hidden>
+    <div class="parthead">Du</div>
+    <div class="card">
+      <label class="fl" style="margin-top:0">Dein Name</label>
+      <input type="text" id="myName" placeholder="So sehen dich die anderen" autocomplete="off">
+      <p class="shint">Wird neuen Gruppen als dein Mitgliedsname vorgeschlagen und in der Aktivität angezeigt.</p>
+      <label class="fl">Gerät</label>
+      <input type="text" id="devName" autocomplete="off">
+      <p class="shint">Name dieses Geräts in der Cloud, z. B. „Philipps iPhone".</p>
+    </div>
+
+    <div class="parthead">Speichern</div>
+    <div class="card store">
+      <div class="strow"><span>Gerätespeicher</span><span id="stPersist">–</span></div>
+      <div class="strow"><span>Cloud-Sync</span><span id="syStat">aus</span></div>
+      <div id="syOffBox">
+        <input type="password" id="syToken" placeholder="GitHub-Token mit Gist-Recht" autocomplete="off">
+        <p class="shint" id="syReuse" hidden>Token der Spanisch-App auf diesem Gerät gefunden und eingetragen.</p>
+        <button class="act pri" id="syConnect" style="width:100%">Mit GitHub verbinden</button>
+        <p class="shint">Legt ein geheimes Gist „Geteilte Kasse" an oder findet es. Jedes Gerät schreibt seine eigene Datei, beim Abgleich wird alles zusammengeführt — gleichzeitiges Erfassen auf zwei iPhones geht nicht verloren. Auf dem zweiten Gerät denselben Token eingeben.</p>
+      </div>
+      <div id="syOnBox" hidden>
+        <div class="btnrow"><button class="act" id="syNow">Jetzt abgleichen</button><button class="act warn" id="syOff">Trennen</button></div>
+        <div class="strow" style="margin-top:10px"><span>Geräte in der Cloud</span><span id="diagN"></span></div>
+        <div id="diagList"></div>
+      </div>
+      <div class="strow" style="margin-top:10px"><span>Wiederherstellungspunkte</span><span id="snapN"></span></div>
+      <select id="snapSel"></select>
+      <button class="act" id="snapGo" style="width:100%">Auf diesen Stand zurücksetzen</button>
+    </div>
+
+    <div class="card backup">
+      <div class="bkinfo"><b>Alle Daten als Datei</b><span id="bkLast"></span></div>
+      <div class="btnrow"><button class="act" id="bkOut">Sichern</button><button class="act" id="bkIn">Wiederherstellen</button></div>
+      <input type="file" id="bkFile" accept="application/json,.json" hidden>
+      <p class="bkmsg" id="bkMsg" hidden></p>
+    </div>
+    <p class="ver" id="verInfo"></p>
+  </div>
+
+</main>
+
+<div class="sheet" id="sheet" hidden><div class="sbox" id="sbox"></div></div>
+
+<nav>
+  <button data-tab="groups" aria-selected="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.2c3 .2 5.5 2.6 5.5 5.8"/></svg>Gruppen</button>
+  <button data-tab="act" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg>Aktivität</button>
+  <button data-tab="set" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h2M10 12h10M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>Einstellungen</button>
+</nav>
+
+<script src="app.js"></script>
+
+</body>
+</html>
